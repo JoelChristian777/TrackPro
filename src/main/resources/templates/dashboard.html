@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:thymol="http://www.thymoljs.org">
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <h2 th:text="'Welcome, ' + ${session.user.fullname}">Welcome</h2>
+    <form method="post" th:action="@{/log-exercise}">
+        <input type="number" name="bench" placeholder="Bench Press (kg)" required>
+        <input type="number" name="dead" placeholder="Deadlift (kg)" required>
+        <input type="number" name="squat" placeholder="Squats (kg)" required>
+        <button type="submit">Save Log</button>
+    </form>
+
+    <div class="chart-container">
+        <h3 style="text-align: center; color: #00bcd4;">Progress Chart</h3>
+        <canvas id="progressChart" width="400" height="200"></canvas>
+    </div>
+
+    <form th:action="@{/logout}" method="post">
+        <button class="logout-btn" type="submit">Logout</button>
+    </form>
+</div>
+
+<script th:inline="javascript">
+    let logs = /*[[${logs}]]*/ '[]';
+    logs = typeof logs === 'string' ? JSON.parse(logs) : logs;
+
+    const labels = logs.map(log => log.logDate);
+    const benchData = logs.map(log => log.benchPress);
+    const deadData = logs.map(log => log.deadlift);
+    const squatData = logs.map(log => log.squats);
+
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Bench Press',
+                    data: benchData,
+                    borderColor: 'blue',
+                    fill: false
+                },
+                {
+                    label: 'Deadlift',
+                    data: deadData,
+                    borderColor: 'green',
+                    fill: false
+                },
+                {
+                    label: 'Squats',
+                    data: squatData,
+                    borderColor: 'red',
+                    fill: false
+                }
+            ]
+        }
+    });
+</script>
+</body>
+</html>
